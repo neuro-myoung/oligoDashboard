@@ -15,14 +15,12 @@ st.set_page_config(
 )
 
 def main():
-    # Title
-    st.title("🧬 Oligonucleotide Alignment Visualizer")
+    st.title("🧬 OligonViz")
     st.write("")
     st.write("")
     st.write("")
     
-    # File upload and plot button in columns
-    col1, col2, col3 = st.columns([3,1,1])
+    col1, col2, col3 = st.columns([2,1,2])
     
     with col1:
         uploaded_file = st.file_uploader(
@@ -30,36 +28,40 @@ def main():
             type=['csv'],
             help="CSV should contain columns: position, nucleotide, compound_id, sugar, base, linker"
         )
+        df = None
+        data_source = ""
     
-    with col3:
-        # Add some spacing to align button with file uploader
+        if uploaded_file is not None:
+            file_content = StringIO(uploaded_file.getvalue().decode("utf-8"))
+            df = pl.read_csv(file_content)
+            data_source = f"Uploaded file: {uploaded_file.name}"
+    
+        else:
+            df = pl.read_csv("assets/sample.csv")
+            data_source = "Sample data (assets/sample.csv)"
+            st.info(f"Plotting: {data_source}")
+
         plot_button = st.button("Align", type="primary", use_container_width=True)
     
+    with col3:
+            st.markdown("""
+            ### Expected CSV Format:
+            Your file should contain these columns:
+            - `position` - Position of nucleotide in sequence (integer)
+            - `nucleotide` - Nucleotide letter (A, T, G, C, U)
+            - `compound_id` - Unique identifier for each oligonucleotide
+            - `sugar` - Sugar type (DNA, RNA, etc.)
+            - `base` - Base letter for display
+            - `linker` - Type of linker between nucleotides (none, phosphate, sulfur, etc.)
+            """)
+    
     st.write("")
     st.write("")
-    # Determine which data to use
-    df = None
-    data_source = ""
-    
-    if uploaded_file is not None:
-        # Read the uploaded file content as string
-        file_content = StringIO(uploaded_file.getvalue().decode("utf-8"))
-        # Load with Polars
-        df = pl.read_csv(file_content)
-        data_source = f"Uploaded file: {uploaded_file.name}"
-  
-    else:
-        # Use sample data if no file uploaded
-        df = pl.read_csv("assets/sample.csv")
-        data_source = "Sample data (assets/sample.csv)"
-    
-    # Always plot the data (either uploaded file or sample data)
+
+    st.markdown("# Alignment Plot")
+ 
     if df is not None:
-        try:
-            # Show data source
-            st.info(f"Plotting: {data_source}")
-            
-            # Validate required columns
+        try:             
             required_cols = ['position', 'nucleotide', 'compound_id', 'sugar', 'base', 'linker']
             missing_cols = [col for col in required_cols if col not in df.columns]
             
@@ -81,17 +83,7 @@ def main():
             st.error(f"Error generating plot: {str(e)}")
             st.write("Please check your data format and try again.")
             
-            # Show instructions as fallback
-            st.markdown("""
-            ### Expected CSV Format:
-            Your file should contain these columns:
-            - `position` - Position of nucleotide in sequence (integer)
-            - `nucleotide` - Nucleotide letter (A, T, G, C, U)
-            - `compound_id` - Unique identifier for each oligonucleotide
-            - `sugar` - Sugar type (DNA, RNA, etc.)
-            - `base` - Base letter for display
-            - `linker` - Type of linker between nucleotides (none, phosphate, sulfur, etc.)
-            """)
+            
 
 if __name__ == "__main__":
     main()
