@@ -15,7 +15,7 @@ st.set_page_config(
 )
 
 def main():
-    st.title("🧬 OligonViz")
+    st.title("🧬 OligoViz")
     st.write("")
     st.write("")
     st.write("")
