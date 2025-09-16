@@ -39,7 +39,7 @@ def oligoAlign(df, align='position'):
         stroke = alt.value("black"),
         strokeDash=alt.StrokeDash('linker:N',  # Dash pattern based on linker
                                   scale=alt.Scale(
-                                      range=[[0,1], [1,0], [5,5]]  # Different dash patterns
+                                      range=[[0,1], [5,5], [1,0]]  # Different dash patterns
                                   )),
         tooltip=['position:O', 'nucleotide:N', 'compound_id:N', 'sugar:N', 'base:N']
     )
